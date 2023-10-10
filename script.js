@@ -26,6 +26,7 @@ let songs = [
 songItems.forEach((element, i)=>{ 
     element.getElementsByTagName("img")[0].src = songs[i].coverPath; 
     element.getElementsByClassName("songName")[0].innerText = songs[i].songName; 
+    // element.getElementsById("timestamp")[i].
 })
  
 
@@ -48,6 +49,7 @@ masterPlay.addEventListener('click', ()=>{
 audioElement.addEventListener('timeupdate', ()=>{ 
     // Update Seekbar
     progress = parseInt((audioElement.currentTime/audioElement.duration)* 100); 
+    updateTrackTime(audioElement);
     myProgressBar.value = progress;
 })
 
@@ -105,9 +107,51 @@ document.getElementById('previous').addEventListener('click', ()=>{
     masterSongName.innerText = songs[songIndex].songName;
     audioElement.currentTime = 0;
     audioElement.play();
+
     masterPlay.classList.remove('fa-play-circle');
     masterPlay.classList.add('fa-pause-circle');
 })
+function formatSecondsAsTime(seconds) {
+    var minutes = Math.floor(seconds / 60);
+    var remainingSeconds = Math.floor(seconds % 60);
+    return (minutes < 10 ? '0' : '') + minutes + ':' + (remainingSeconds < 10 ? '0' : '') + remainingSeconds;
+}
 
+function updateTrackTime(track){
+    var currTimeDiv = document.getElementById('currentTime');
+    var durationDiv = document.getElementById('duration');
+  
+    var currTime = Math.floor(track.currentTime); 
+    var duration = Math.floor(track.duration);
+    console.log(currTime);
+    console.log(duration);
+    // currTimeDiv.innerHTML = formatSecondsAsTime(currTime);
+  
+    if (isNaN(duration)){
+      durationDiv.innerHTML = '00:00';
+    } 
+    else{
+      durationDiv.innerHTML = formatSecondsAsTime(currTime) + "/" + formatSecondsAsTime(duration);
+      console.log(durationDiv.innerHTML);
+    }
+  }
+  // Get references to the search input and the container of song items.
+const songSearchInput = document.getElementById('songSearch');
+const songItemContainer = document.querySelector('.songItemContainer');
 
+// Add an input event listener to the search input.
+songSearchInput.addEventListener('input', function () {
+    const searchQuery = songSearchInput.value.toLowerCase(); // Convert the input to lowercase for case-insensitive matching.
+    const songItems = songItemContainer.querySelectorAll('.songItem');
 
+    // Loop through each song item and check if it contains the search query.
+    songItems.forEach(function (songItem) {
+        const songName = songItem.querySelector('.songName').textContent.toLowerCase();
+
+        if (songName.includes(searchQuery)) {
+            songItem.style.display = 'block'; // Show the matching song item.
+        } else {
+            songItem.style.display = 'none'; // Hide non-matching song items.
+        }
+    });
+});
